@@ -1,27 +1,24 @@
-; Bootloader Assembly - Conta vogais em uma string e mostra na tela
 ORG 0x7C00
 BITS 16
 
     jmp start
 
-msg:        db "Exemplo de string para contar vogais.", 0
-vogais:     db "AEIOUaeiou", 0
-resultado:  db "Qtd de vogais: ", 0
+msg:         db "Exemplo de string para contar vogais.", 0
+vogais:      db "AEIOUaeiou", 0
+resultado:   db "Qtd de vogais: ", 0
 
 start:
     xor ax, ax
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x7C00  ; stack segura
+    mov sp, 0x7C00
 
-    ; Exibe mensagem
     mov si, resultado
     call print_string
 
-    ; Conta vogais
     mov si, msg
-    xor bx, bx      ; contador de vogais = 0
+    xor bx, bx
 
 .proximo_caractere:
     lodsb
@@ -47,14 +44,12 @@ start:
     jmp .proximo_caractere
 
 .fim_contagem:
-    ; Mostra contador
     mov ax, bx
     call print_number
 
 halt:
     jmp $
 
-; Exibe string terminada em 0
 print_string:
 .loop:
     lodsb
@@ -66,7 +61,6 @@ print_string:
 .done:
     ret
 
-; Exibe número em AX
 print_number:
     mov bx, 10
     mov cx, 0
@@ -85,6 +79,5 @@ print_number:
     loop .loop2
     ret
 
-; Boot signature (obrigatória para BIOS)
 times 510 - ($ - $$) db 0
 dw 0xAA55
