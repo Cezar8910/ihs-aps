@@ -30,7 +30,7 @@ configurando_ivt:
 
     mov ax, hello
     push ax
-    int 0x40
+    int 0x40    ; int 0x40 chama a rotina print_string 
     add sp, 2
 
     mov ax, msg
