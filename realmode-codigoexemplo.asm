@@ -10,6 +10,7 @@ jmp start
 hello db "hello world", 0x0D, 0x0A, 0
 msg   db "escreva algo: ", 0
 fim   db "fim do programa",0x0D,0xA, 0
+buffer times 80 db 0  ; buffer p entrada do teclado
 
 ; inicio do programa
 
@@ -20,6 +21,7 @@ configurando_ivt:
     xor ax, ax
     mov ds, ax ;; por garantia, pode ds != 0
 
+    ; interrupção 40h >> endereço na IVT: 40h * 4 = 100h
     mov di, 0x100
     mov word[di], print_string
     mov word[di+2], 0
@@ -28,14 +30,18 @@ configurando_ivt:
 
     mov ax, hello
     push ax
-    ;;call print_string
     int 0x40
     add sp, 2
 
     mov ax, msg
 
     push ax
-    ;;call print_string
+    int 0x40
+    add sp, 2
+
+    call get_keyboard_input     ; chamando funcao
+    mov ax, buffer              ; printar string
+    push ax
     int 0x40
     add sp, 2
 
@@ -49,18 +55,25 @@ end:
 
 ; Funções
 
+;; agora salva string no buffer
 get_keyboard_input:
     pusha
+    mov di, buffer ; inicio do buffer
 .loop:
     mov ah, 0x00
     int 0x16
     ;; apartir daqui o char vai ta no al
-    cmp al, 0x0D
+    cmp al, 0x0D ; enter
     je .done
+
+    stosb ;  salva al no buffer
+
     mov ah, 0x0E
     int 0x10
     jmp .loop
 .done:
+    mov al, 0  ; null terminator
+    stosb
     popa
     iret
 
